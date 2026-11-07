@@ -1,13 +1,13 @@
 # CaroAI (Gomoku Terminator)
 
-A highly optimized Gomoku (Caro/Five-in-a-Row) game against an unbeatable AI, developed in Python using Pygame. The AI utilizes the **Minimax Algorithm with Alpha-Beta Pruning** and an advanced heuristic evaluation function to detect complex tactical threats like double-forks.
+A Gomoku (Caro/Five-in-a-Row) game against a heuristic AI, developed in Python using Pygame. The playable opponent uses **Minimax with Alpha-Beta Pruning** and an evaluation function for tactical threats such as double-forks. Separate scripts explore Q-Learning and DQN; the playable game does not use those trained agents.
 
 ## 🌟 Key Features
 
 * **Advanced AI Opponent:** The AI ("Terminator") thinks ahead using Minimax and Alpha-Beta pruning, aggressively blocking your moves and seizing victory.
 * **Super-Optimized Evaluation:** Evaluates cells and lines dynamically. Recognizes critical Gomoku patterns like "Open 4," "Blocked 4," "Open 3," and devastating double-threats (Forks).
 * **Smooth UI:** A clean and interactive graphical user interface built with Pygame. Features board highlighting, winning animations, and move tracking.
-* **Lightning Fast:** Achieves depth 3 calculations near-instantaneously thanks to localized cell evaluation updates and dynamic move sorting heuristics (`get_top_moves`).
+* **Responsive Search:** Uses localized cell evaluation and move ordering (`get_top_moves`) to make depth-3 search practical; no latency benchmark is included.
 * **Visual Helpers:** Highlights the last played move to easily keep track of the board state.
 
 ## 🚀 Installation & Requirements

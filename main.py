@@ -65,8 +65,15 @@ class GomokuAI:
             s.fill(WHITE)
             self.screen.blit(s, (0, 0))
             
-            msg = "YOU HAVE BEEN CRUSHED BY AI!" if self.winner == AI else "YOU ARE A GOMOKU GENIUS!"
-            color = RED if self.winner == AI else BLUE
+            if self.winner == AI:
+                msg = "YOU HAVE BEEN CRUSHED BY AI!"
+                color = RED
+            elif self.winner == PLAYER:
+                msg = "YOU ARE A GOMOKU GENIUS!"
+                color = BLUE
+            else:
+                msg = "IT'S A DRAW!"
+                color = BLACK
             
             text = self.font.render(msg, True, color)
             self.screen.blit(text, (WINDOW_SIZE//2 - text.get_width()//2, WINDOW_SIZE//2 - 50))
@@ -268,8 +275,10 @@ class GomokuAI:
                 print(f"👉 Emergency Block at ({r}, {c})")
                 return 
             self.board[r][c] = EMPTY
-            
-            # Depth 3 is back! It's lightning fast now because of evaluate_cell.
+
+        # Tính toán Minimax độ sâu 3 với Alpha-Beta Pruning
+        for r, c in moves:
+            self.board[r][c] = AI
             score = self.minimax(3, -math.inf, math.inf, False) 
             self.board[r][c] = EMPTY
             
@@ -284,6 +293,9 @@ class GomokuAI:
         if best_move:
             self.place(best_move[0], best_move[1], AI)
             
+    def is_board_full(self):
+        return all(self.board[r][c] != EMPTY for r in range(BOARD_SIZE) for c in range(BOARD_SIZE))
+
     def place(self, r, c, player):
         self.board[r][c] = player
         self.last_move = (r, c)
@@ -294,12 +306,17 @@ class GomokuAI:
                 print("❌ YOU HAVE BEEN CRUSHED BY AI! ❌")
             else:
                 print("🎉 INCREDIBLE! YOU DEFEATED THE TERMINATOR! 🎉")
+        elif self.is_board_full():
+            self.game_over = True
+            self.winner = None
+            print("🤝 DRAW! THE BOARD IS FULL! 🤝")
         else:
             self.turn = AI if player == PLAYER else PLAYER
             
         self.draw_board()
             
     def run(self):
+        clock = pygame.time.Clock()
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -323,6 +340,7 @@ class GomokuAI:
                         
             if self.turn == AI and not self.game_over:
                 self.ai_move()
+            clock.tick(60)
 
 if __name__ == "__main__":
     game = GomokuAI()

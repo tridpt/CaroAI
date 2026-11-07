@@ -135,12 +135,12 @@ def dqn_train():
                     action = q_values.argmax().item()
                     
             next_state, reward, done = env.step(action, 2)
-            memory.append((state, action, reward, next_state, done))
-            state = next_state
-            
-            # [BÍ QUYẾT TỐI THƯỢNG]: SELF-PLAY (Tự diễn biến, tự phân thân chiến đấu)
-            # Kẻ địch không còn bốc đại cờ nữa. Nó sẽ dùng chung BỘ NÃO policy_net để học cách bóp nghẹt AI!
-            if not done:
+            if done:
+                memory.append((state, action, reward, next_state, True))
+                state = next_state
+            else:
+                # [BÍ QUYẾT TỐI THƯỢNG]: SELF-PLAY (Tự diễn biến, tự phân thân chiến đấu)
+                # Kẻ địch không còn bốc đại cờ nữa. Nó sẽ dùng chung BỘ NÃO policy_net để học cách bóp nghẹt AI!
                 enemy_moves = np.where(env.board.flatten() == 0)[0]
                 if random.random() < epsilon:
                     enemy_action = random.choice(enemy_moves)
@@ -153,13 +153,16 @@ def dqn_train():
                         eq_values[env.board.flatten() != 0] = -1e9
                         enemy_action = eq_values.argmax().item()
 
-                next_state_enemy, en_reward, en_done = env.step(enemy_action, 1)
-                
+                _, en_reward, en_done = env.step(enemy_action, 1)
+                post_enemy_state = env.get_state(2)
+
                 if en_done and en_reward > 0: # Địch (Phân thân) thắng -> AI gốc bị trừ 1 điểm cực đậm
-                    memory.append((state, action, -1.0, next_state_enemy, True))
+                    memory.append((state, action, -1.0, post_enemy_state, True))
                     done = True
                 else:
-                    state = env.get_state(2)
+                    memory.append((state, action, reward, post_enemy_state, en_done))
+                    done = en_done
+                state = post_enemy_state
             
             # Huấn luyện trên Mini-batch từ Replay Buffer (NHƯNG CHỈ SAU MỖI 16 BƯỚC THAY VÌ MỖI BƯỚC)
             if len(memory) > BATCH_SIZE and moves_played % UPDATE_FREQ == 0:
